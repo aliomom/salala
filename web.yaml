@@ -1,0 +1,57 @@
+##
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: webserver
+  namespace: ske
+  labels:
+    app: apache
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: apache
+  template:
+    metadata:
+      labels:
+        app: apache
+    spec:
+      containers:
+      - name: php-apache
+        image: gcr.io/yescloud/galaxyback
+        ports:
+        - containerPort: 80
+        volumeMounts:
+        - name: pvc-sym-m
+          mountPath: /var/www/upload/image
+      volumes:
+      - name: pvc-sym-m
+        persistentVolumeClaim:
+          claimName: pvc-sym-uploud
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: web-service
+  namespace: ske
+  labels:
+    run: web-service
+spec:
+  type: LoadBalancer
+  ports:
+  - port: 80
+    protocol: TCP
+  selector:
+    app: apache
+---
+apiVersion: v1                  
+kind: PersistentVolumeClaim     
+metadata:                       
+   name: pvc-sym-uploud
+   namespace: ske
+spec:                           
+   accessModes:                  
+   - ReadWriteOnce              
+   resources:                   
+      requests:                 
+         storage: 1Gi

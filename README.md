@@ -1,0 +1,1 @@
+# symfony-angular-skeleton
